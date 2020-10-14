@@ -1,22 +1,21 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using WebInvoicer.Core.Dtos.User;
-using WebInvoicer.Core.Models;
+using WebInvoicer.Core.Utility;
 
 namespace WebInvoicer.Core.Repositories
 {
     public interface IUserRepository
     {
-        Task<IdentityResult> CreateUser(CreateUserDto data);
+        Task<TaskResult> CreateUser(CreateUserDto data);
 
-        Task<IdentityResult> ConfirmUser(ConfirmUserDto data);
+        Task<TaskResult> ConfirmUser(ConfirmUserDto data);
 
-        Task<ApplicationUser> VerifyPassword(VerifyPasswordDto data);
+        Task<TaskResult> VerifyPassword(VerifyPasswordDto data);
 
-        Task<string> ResetPassword(string email);
+        Task<TaskResult> ResetPassword(string email);
 
-        Task<IdentityResult> ChangePassword(PasswordDto data);
+        Task<TaskResult> ChangePassword(PasswordDto data);
 
-        Task<IdentityResult> ChangePassword(PasswordResetDto data);
+        Task<TaskResult> ChangePassword(PasswordResetDto data);
     }
 }

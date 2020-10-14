@@ -10,10 +10,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebInvoicer.Core;
+using WebInvoicer.Core.Email;
 using WebInvoicer.Core.Models;
 using WebInvoicer.Core.Repositories;
 using WebInvoicer.Core.Services;
-using WebInvoicer.Core.Utility;
+using WebInvoicer.Core.Token;
 
 namespace WebInvoicer.Api
 {
@@ -35,8 +36,8 @@ namespace WebInvoicer.Api
             var allowedHosts = Configuration.GetSection("Cors:AllowedHosts").Get<string[]>();
             var allowedMethods = Configuration.GetSection("Cors:AllowedMethods").Get<string[]>();
 
-            var tokenData = new TokenData(configSection.GetValue<string>("jwtSecret"),
-                configSection.GetValue<int>("tokenExpiryTime"));
+            services.Configure<EmailConfiguration>(configSection.GetSection("EmailConfig"));
+            services.Configure<TokenConfiguration>(configSection.GetSection("TokenConfig"));
 
             services.AddCors(options =>
             {
@@ -50,12 +51,12 @@ namespace WebInvoicer.Api
 
             services.AddControllers();
 
-            services.AddTransient<IUserService, UserService>(x =>
-                ActivatorUtilities.CreateInstance<UserService>(x, tokenData));
+            services.AddTransient<IUserService, UserService>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddSingleton<IEmailService, EmailService>();
 
             services.AddDbContextPool<DatabaseContext>(options =>
-                options.UseMySql(configSection.GetValue<string>("connectionString")));
+                options.UseMySql(configSection["ConnectionString"]));
 
             services.AddIdentityCore<ApplicationUser>(options =>
                 options.SignIn.RequireConfirmedAccount = true)
@@ -74,7 +75,7 @@ namespace WebInvoicer.Api
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
-                        .GetBytes(configSection.GetValue<string>("jwtSecret"))),
+                        .GetBytes(configSection["TokenConfig:JwtSecret"])),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };

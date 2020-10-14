@@ -2,7 +2,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 
-namespace WebInvoicer.Core.Utility
+namespace WebInvoicer.Core.Token
 {
     public class TokenUtility
     {

@@ -4,7 +4,7 @@ using WebInvoicer.Core.Models;
 
 namespace WebInvoicer.Core
 {
-    public class DatabaseContext : IdentityDbContext<User>
+    public class DatabaseContext : IdentityDbContext<ApplicationUser>
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {

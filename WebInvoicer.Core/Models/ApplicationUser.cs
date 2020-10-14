@@ -6,8 +6,5 @@ namespace WebInvoicer.Core.Models
     {
         [PersonalData]
         public string FullName { get; set; }
-
-        [PersonalData]
-        public string Language { get; set; }
     }
 }

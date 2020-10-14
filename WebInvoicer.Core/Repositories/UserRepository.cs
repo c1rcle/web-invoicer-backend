@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using WebInvoicer.Core.Dtos.User;
 using WebInvoicer.Core.Models;
+using WebInvoicer.Core.Utility;
 
 namespace WebInvoicer.Core.Repositories
 {
@@ -12,53 +13,71 @@ namespace WebInvoicer.Core.Repositories
         public UserRepository(UserManager<ApplicationUser> userManager) =>
             this.userManager = userManager;
 
-        public async Task<IdentityResult> CreateUser(CreateUserDto data)
+        public async Task<TaskResult> CreateUser(CreateUserDto data)
         {
             var user = new ApplicationUser
             {
                 UserName = data.Email,
-                Language = data.Language,
                 Email = data.Email,
                 FullName = data.FullName
             };
 
-            return await userManager.CreateAsync(user, data.Password);
+            var result = await userManager.CreateAsync(user, data.Password);
+
+            if (!result.Succeeded)
+            {
+                return new TaskResult(false);
+            }
+
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            return new TaskResult(true, token);
         }
 
-        public async Task<IdentityResult> ConfirmUser(ConfirmUserDto data)
+        public async Task<TaskResult> ConfirmUser(ConfirmUserDto data)
         {
             var user = await GetUser(data.Email);
-            return await userManager.ConfirmEmailAsync(user, data.Token);
+            var result = await userManager.ConfirmEmailAsync(user, data.Token);
+
+            return new TaskResult(result.Succeeded);
         }
 
-        public async Task<ApplicationUser> VerifyPassword(VerifyPasswordDto data)
+        public async Task<TaskResult> VerifyPassword(VerifyPasswordDto data)
         {
             var user = await GetUser(data.Email);
-            return await userManager.CheckPasswordAsync(user, data.Password) ? user : null;
+            var result = await userManager.CheckPasswordAsync(user, data.Password);
+
+            return new TaskResult(result, user);
         }
 
-        public async Task<string> ResetPassword(string email)
+        public async Task<TaskResult> ResetPassword(string email)
         {
             var user = await GetUser(email);
 
             if (user == null)
             {
-                return null;
+                return new TaskResult(false);
             }
 
-            return await userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            return new TaskResult(true, token);
         }
 
-        public async Task<IdentityResult> ChangePassword(PasswordDto data)
+        public async Task<TaskResult> ChangePassword(PasswordDto data)
         {
             var user = await GetUser(data.Email);
-            return await userManager.ChangePasswordAsync(user, data.Password, data.NewPassword);
+            var result = await userManager
+                .ChangePasswordAsync(user, data.Password, data.NewPassword);
+
+            return new TaskResult(result.Succeeded);
         }
 
-        public async Task<IdentityResult> ChangePassword(PasswordResetDto data)
+        public async Task<TaskResult> ChangePassword(PasswordResetDto data)
         {
             var user = await GetUser(data.Email);
-            return await userManager.ResetPasswordAsync(user, data.ResetToken, data.NewPassword);
+            var result = await userManager
+                .ResetPasswordAsync(user, data.ResetToken, data.NewPassword);
+
+            return new TaskResult(result.Succeeded);
         }
 
         private async Task<ApplicationUser> GetUser(string email) =>

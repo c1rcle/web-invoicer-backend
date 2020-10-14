@@ -1,13 +1,14 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using WebInvoicer.Core.Dtos.User;
+using WebInvoicer.Core.Extensions;
 using WebInvoicer.Core.Repositories;
+using WebInvoicer.Core.Token;
 using WebInvoicer.Core.Utility;
 
 namespace WebInvoicer.Core.Services
@@ -20,31 +21,36 @@ namespace WebInvoicer.Core.Services
 
         private readonly IMapper mapper;
 
-        private readonly TokenData tokenData;
+        private readonly TokenConfiguration tokenConfig;
 
-        public UserService(IUserRepository repository, IMapper mapper, TokenData tokenData)
+        public UserService(IUserRepository repository, IEmailService emailService, IMapper mapper,
+            TokenConfiguration tokenConfig)
         {
             this.repository = repository;
+            this.emailService = emailService;
             this.mapper = mapper;
-            this.tokenData = tokenData;
+            this.tokenConfig = tokenConfig;
         }
 
         public async Task<ResultHandler> CreateUser(CreateUserDto data)
         {
-            //TODO send confirmation email.
-            return await ResultHandler.HandleRepositoryCall(repository.CreateUser, data);
+            var messageData = new MessageData(data.Email, MessageType.Confirmation);
+
+            return ResultHandler.HandleTaskResult(await repository
+                .CreateUser(data)
+                .NextAsync(emailService.SendForTaskResult, messageData));
         }
 
         public async Task<ResultHandler> ConfirmUser(ConfirmUserDto data)
         {
-            return await ResultHandler.HandleRepositoryCall(repository.ConfirmUser, data);
+            return ResultHandler.HandleTaskResult(await repository.ConfirmUser(data));
         }
 
         public async Task<ResultHandler> VerifyPassword(VerifyPasswordDto data)
         {
-            var result = await ResultHandler.HandleRepositoryCall(repository.VerifyPassword, data);
+            var result = await repository.VerifyPassword(data);
 
-            if (result.StatusCode == HttpStatusCode.OK)
+            if (result.Success)
             {
                 result.Payload = new
                 {
@@ -53,38 +59,47 @@ namespace WebInvoicer.Core.Services
                 };
             }
 
-            return result;
+            return ResultHandler.HandleTaskResult(result);
         }
 
         public async Task<ResultHandler> ResetPassword(string email)
         {
-            //TODO send password reset email.
-            return await ResultHandler.HandleRepositoryCall(repository.ResetPassword, email);
+            var messageData = new MessageData(email, MessageType.PasswordReset);
+
+            return ResultHandler.HandleTaskResult(await repository
+                .ResetPassword(email)
+                .NextAsync(emailService.SendForTaskResult, messageData));
         }
 
         public async Task<ResultHandler> ChangePassword(PasswordDto data)
         {
-            //TODO send password change notification email.
-            return await ResultHandler.HandleRepositoryCall(repository.ChangePassword, data);
+            var messageData = new MessageData(data.Email, MessageType.PasswordChange);
+
+            return ResultHandler.HandleTaskResult(await repository
+                .ChangePassword(data)
+                .NextAsync(emailService.SendForTaskResult, messageData));
         }
 
         public async Task<ResultHandler> ChangePassword(PasswordResetDto data)
         {
-            //TODO send password change notification email.
-            return await ResultHandler.HandleRepositoryCall(repository.ChangePassword, data);
+            var messageData = new MessageData(data.Email, MessageType.PasswordChange);
+
+            return ResultHandler.HandleTaskResult(await repository
+                .ChangePassword(data)
+                .NextAsync(emailService.SendForTaskResult, messageData));
         }
 
         private string GenerateJwt(VerifyPasswordDto data)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(tokenData.JwtSecret);
+            var key = Encoding.ASCII.GetBytes(tokenConfig.JwtSecret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Email, data.Email)
                 }),
-                Expires = DateTime.UtcNow.AddHours(tokenData.TokenExpiryTime),
+                Expires = DateTime.UtcNow.AddHours(tokenConfig.TokenExpiryTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };

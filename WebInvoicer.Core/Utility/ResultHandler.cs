@@ -1,8 +1,5 @@
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebInvoicer.Core.Utility
@@ -38,14 +35,12 @@ namespace WebInvoicer.Core.Utility
             Payload = mapper.Map<TDestination>(Payload);
         }
 
-        public static async Task<ResultHandler> HandleRepositoryCall<TData, TResult>(
-            Func<TData, Task<TResult>> call, TData data)
+        public static ResultHandler HandleTaskResult(TaskResult result)
         {
-            var result = await call(data);
             var statusCode = result switch
             {
-                IdentityResult { Succeeded: true } => HttpStatusCode.NoContent,
-                object => HttpStatusCode.OK,
+                { Success: true, Payload: null } => HttpStatusCode.NoContent,
+                { Success: true, Payload: not null } => HttpStatusCode.OK,
                 _ => HttpStatusCode.UnprocessableEntity
             };
 
