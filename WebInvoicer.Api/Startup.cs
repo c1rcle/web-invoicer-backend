@@ -11,6 +11,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebInvoicer.Core;
 using WebInvoicer.Core.Models;
+using WebInvoicer.Core.Repositories;
+using WebInvoicer.Core.Services;
+using WebInvoicer.Core.Utility;
 
 namespace WebInvoicer.Api
 {
@@ -27,10 +30,13 @@ namespace WebInvoicer.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var keySection = GetKeySection();
+            var configSection = GetConfigSection();
 
             var allowedHosts = Configuration.GetSection("Cors:AllowedHosts").Get<string[]>();
-            var allowedMethods = Configuration.GetSection("Cord:AllowedMethods").Get<string[]>();
+            var allowedMethods = Configuration.GetSection("Cors:AllowedMethods").Get<string[]>();
+
+            var tokenData = new TokenData(configSection.GetValue<string>("jwtSecret"),
+                configSection.GetValue<int>("tokenExpiryTime"));
 
             services.AddCors(options =>
             {
@@ -44,10 +50,15 @@ namespace WebInvoicer.Api
 
             services.AddControllers();
 
-            services.AddDbContextPool<DatabaseContext>(options =>
-                options.UseMySql(keySection.GetValue<string>("connectionString")));
+            services.AddTransient<IUserService, UserService>(x =>
+                ActivatorUtilities.CreateInstance<UserService>(x, tokenData));
+            services.AddTransient<IUserRepository, UserRepository>();
 
-            services.AddIdentityCore<User>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDbContextPool<DatabaseContext>(options =>
+                options.UseMySql(configSection.GetValue<string>("connectionString")));
+
+            services.AddIdentityCore<ApplicationUser>(options =>
+                options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<DatabaseContext>();
 
             services.AddAuthentication(options =>
@@ -63,7 +74,7 @@ namespace WebInvoicer.Api
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
-                        .GetBytes(keySection.GetValue<string>("jwtSecret"))),
+                        .GetBytes(configSection.GetValue<string>("jwtSecret"))),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -104,11 +115,11 @@ namespace WebInvoicer.Api
             });
         }
 
-        private IConfigurationSection GetKeySection()
+        private IConfigurationSection GetConfigSection()
         {
             return Environment.IsProduction()
-                ? Configuration.GetSection("DevelopmentKeys")
-                : Configuration.GetSection("ProductionKeys");
+                ? Configuration.GetSection("DevelopmentConfig")
+                : Configuration.GetSection("ProductionConfig");
         }
     }
 }
