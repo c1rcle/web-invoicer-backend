@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 using WebInvoicer.Core.Email;
@@ -17,33 +16,55 @@ namespace WebInvoicer.Core.Services
 
         private readonly IHttpContextAccessor contextAccessor;
 
-        public EmailService(IOptions<EmailConfiguration> emailConfiguration,
+        public EmailService(EmailConfiguration emailConfiguration,
             IHttpContextAccessor contextAccessor)
         {
-            this.emailConfiguration = emailConfiguration.Value;
+            this.emailConfiguration = emailConfiguration;
             this.contextAccessor = contextAccessor;
         }
 
-        public async Task<TaskResult> SendForTaskResult(TaskResult result,
+        public async Task<TaskResult> SendForTaskResult(TaskResult<string> result,
             MessageData data)
+        {
+            if (!result.Success)
+            {
+                return new TaskResult(result.Errors);
+            }
+
+            var url = data.GetEndpointUrl(emailConfiguration.UrlBase, result.Payload);
+            var message = EmailGenerator.GenerateMessage(data.Recipient, data.Type, url);
+
+            try
+            {
+                await SendEmail(message);
+                return new TaskResult();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return new TaskResult(new[] { "Failed to send email" });
+            }
+        }
+
+        public async Task<TaskResult> SendForTaskResult(TaskResult result, MessageData data)
         {
             if (!result.Success)
             {
                 return result;
             }
 
-            var url = data.GetEndpointUrl(emailConfiguration.UrlBase, result.Payload as string);
+            var url = data.GetEndpointUrl(emailConfiguration.UrlBase);
             var message = EmailGenerator.GenerateMessage(data.Recipient, data.Type, url);
 
             try
             {
                 await SendEmail(message);
-                return new TaskResult(true);
+                return result;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                return new TaskResult(false);
+                return new TaskResult(new[] { "Failed to send email" });
             }
         }
 

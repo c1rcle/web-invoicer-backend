@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using WebInvoicer.Core.Dtos.User;
+using WebInvoicer.Core.Email;
 using WebInvoicer.Core.Extensions;
 using WebInvoicer.Core.Repositories;
 using WebInvoicer.Core.Token;
@@ -52,11 +53,13 @@ namespace WebInvoicer.Core.Services
 
             if (result.Success)
             {
-                result.Payload = new
+                var mappedResult = new TaskResult<AuthenticateDto>(new AuthenticateDto
                 {
                     Token = GenerateJwt(data),
-                    User = mapper.Map<UserDataDto>(result.Payload)
-                };
+                    UserData = mapper.Map<UserDataDto>(result.Payload)
+                });
+
+                return ResultHandler.HandleTaskResult(mappedResult);
             }
 
             return ResultHandler.HandleTaskResult(result);

@@ -1,20 +1,41 @@
 namespace WebInvoicer.Core.Utility
 {
+    public class TaskResult<T>
+    {
+        public bool Success { get; }
+
+        public T Payload { get; }
+
+        public string[] Errors { get; }
+
+        public TaskResult(T payload)
+        {
+            Success = true;
+            Payload = payload;
+        }
+
+        public TaskResult(string[] errors)
+        {
+            Success = false;
+            Errors = errors;
+        }
+    }
+
     public class TaskResult
     {
         public bool Success { get; }
 
-        public object Payload { get; set; }
+        public string[] Errors { get; }
 
-        public TaskResult(bool success)
+        public TaskResult()
         {
-            Success = success;
+            Success = true;
         }
 
-        public TaskResult(bool success, object payload)
+        public TaskResult(string[] errors)
         {
-            Success = success;
-            Payload = payload;
+            Success = false;
+            Errors = errors;
         }
     }
 }

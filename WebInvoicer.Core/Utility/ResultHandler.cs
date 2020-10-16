@@ -35,18 +35,31 @@ namespace WebInvoicer.Core.Utility
             Payload = mapper.Map<TDestination>(Payload);
         }
 
-        public static ResultHandler HandleTaskResult(TaskResult result)
+        public static ResultHandler HandleTaskResult<T>(TaskResult<T> result)
         {
             var statusCode = result switch
             {
                 { Success: true, Payload: null } => HttpStatusCode.NoContent,
-                { Success: true, Payload: not null } => HttpStatusCode.OK,
+                { Success: true } => HttpStatusCode.OK,
                 _ => HttpStatusCode.UnprocessableEntity
             };
 
-            return statusCode == HttpStatusCode.OK
-                ? new ResultHandler(statusCode, result)
-                : new ResultHandler(statusCode);
+            return result.Success
+                ? new ResultHandler(statusCode, result.Payload)
+                : new ResultHandler(statusCode, result.Errors);
+        }
+
+        public static ResultHandler HandleTaskResult(TaskResult result)
+        {
+            var statusCode = result switch
+            {
+                { Success: true } => HttpStatusCode.NoContent,
+                _ => HttpStatusCode.UnprocessableEntity
+            };
+
+            return result.Success
+                ? new ResultHandler(statusCode)
+                : new ResultHandler(statusCode, result.Errors);
         }
     }
 }
