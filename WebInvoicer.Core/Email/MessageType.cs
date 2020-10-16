@@ -1,4 +1,4 @@
-namespace WebInvoicer.Core.Utility
+namespace WebInvoicer.Core.Email
 {
     public enum MessageType
     {

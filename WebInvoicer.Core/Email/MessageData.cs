@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace WebInvoicer.Core.Utility
+namespace WebInvoicer.Core.Email
 {
     public class MessageData
     {
@@ -16,9 +16,9 @@ namespace WebInvoicer.Core.Utility
             Type = type;
         }
 
-        public string GetEndpointUrl(string baseUrl, string token)
+        public string GetEndpointUrl(string baseUrl, string token = null)
         {
-            if (Type == MessageType.PasswordChange)
+            if (token == null)
             {
                 return $"{baseUrl}/login";
             }
@@ -36,7 +36,7 @@ namespace WebInvoicer.Core.Utility
             };
 
             return new Uri(QueryHelpers
-                .AddQueryString($"{baseUrl}/{endpoint}", queryParams)).AbsoluteUri;
+                .AddQueryString($"{baseUrl}/{endpoint}", queryParams)).ToString();
         }
     }
 }

@@ -1,7 +1,6 @@
 using System.IO;
-using WebInvoicer.Core.Email;
 
-namespace WebInvoicer.Core.Utility
+namespace WebInvoicer.Core.Email
 {
     public class EmailGenerator
     {
@@ -12,19 +11,19 @@ namespace WebInvoicer.Core.Utility
                 MessageType.Confirmation =>
                     new
                     {
-                        FileName = "ConfirmTemplate.html",
+                        FileName = "EmailTemplates/ConfirmTemplate.html",
                         Subject = "Confirm your email address"
                     },
                 MessageType.PasswordReset =>
                     new
                     {
-                        FileName = "PasswordResetTemplate.html",
+                        FileName = "EmailTemplates/PasswordResetTemplate.html",
                         Subject = "Reset your password"
                     },
                 _ =>
                     new
                     {
-                        FileName = "PasswordChangeTemplate.html",
+                        FileName = "EmailTemplates/PasswordChangeTemplate.html",
                         Subject = "Password change notification"
                     }
             };

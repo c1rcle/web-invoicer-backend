@@ -25,7 +25,7 @@ namespace WebInvoicer.Core.Token
 
         private static string ParseFromHeaders(IHeaderDictionary httpHeaders)
         {
-            if (httpHeaders.TryGetValue("Authorization", out var authorizationString))
+            if (!httpHeaders.TryGetValue("Authorization", out var authorizationString))
             {
                 return null;
             }
