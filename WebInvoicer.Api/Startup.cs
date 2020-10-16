@@ -1,28 +1,34 @@
+using System;
 using System.Text;
+using System.Text.Json;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using WebInvoicer.Api.Configurations;
+using WebInvoicer.Api.Filters;
 using WebInvoicer.Core;
-using WebInvoicer.Core.Email;
+using WebInvoicer.Core.Dtos;
 using WebInvoicer.Core.Models;
 using WebInvoicer.Core.Repositories;
 using WebInvoicer.Core.Services;
-using WebInvoicer.Core.Token;
 
 namespace WebInvoicer.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
@@ -31,13 +37,15 @@ namespace WebInvoicer.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var configSection = GetConfigSection();
-
+            var config = GetAppConfiguration();
             var allowedHosts = Configuration.GetSection("Cors:AllowedHosts").Get<string[]>();
             var allowedMethods = Configuration.GetSection("Cors:AllowedMethods").Get<string[]>();
 
-            services.Configure<EmailConfiguration>(configSection.GetSection("EmailConfig"));
-            services.Configure<TokenConfiguration>(configSection.GetSection("TokenConfig"));
+            services.AddSingleton(config.EmailConfig);
+            services.AddSingleton(config.TokenConfig);
+
+            services.AddHttpContextAccessor();
+            services.AddAutoMapper(typeof(Mapping));
 
             services.AddCors(options =>
             {
@@ -49,18 +57,24 @@ namespace WebInvoicer.Api
                 });
             });
 
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(AuthorizeActionFilter));
+                options.Filters.Add(typeof(ValidateModelStateFilter));
+                options.Filters.Add(typeof(ValidateTokenFilter));
+            });
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddSingleton<IEmailService, EmailService>();
 
             services.AddDbContextPool<DatabaseContext>(options =>
-                options.UseMySql(configSection["ConnectionString"]));
+                options.UseMySql(config.ConnectionString));
 
             services.AddIdentityCore<ApplicationUser>(options =>
                 options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<DatabaseContext>();
+            .AddEntityFrameworkStores<DatabaseContext>()
+            .AddDefaultTokenProviders();
 
             services.AddAuthentication(options =>
             {
@@ -75,7 +89,7 @@ namespace WebInvoicer.Api
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
-                        .GetBytes(configSection["TokenConfig:JwtSecret"])),
+                        .GetBytes(config.TokenConfig.JwtSecret)),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -83,7 +97,7 @@ namespace WebInvoicer.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Web Invoicer", Version = "1.0" });
+                options.SwaggerDoc("1.0", new OpenApiInfo { Title = "Web Invoicer", Version = "1.0" });
             });
         }
 
@@ -116,11 +130,13 @@ namespace WebInvoicer.Api
             });
         }
 
-        private IConfigurationSection GetConfigSection()
+        private AppConfiguration GetAppConfiguration()
         {
-            return Environment.IsProduction()
+            var section = Environment.IsDevelopment()
                 ? Configuration.GetSection("DevelopmentConfig")
                 : Configuration.GetSection("ProductionConfig");
+
+            return JsonSerializer.Deserialize<AppConfiguration>(section.Value);
         }
     }
 }
