@@ -24,5 +24,23 @@ namespace WebInvoicer.Core.Extensions
                 ? IdentityResult.Failed(new[] { new IdentityError { Description = "Invalid token." } })
                 : await userManager.ConfirmEmailAsync(user, token);
         }
+
+        public static async Task<string> GeneratePasswordResetToken(
+            this UserManager<ApplicationUser> userManager,
+            ApplicationUser user)
+        {
+            var result = await userManager.UpdateSecurityStampAsync(user);
+            return result.Succeeded
+                ? await userManager.GeneratePasswordResetTokenAsync(user) : "";
+        }
+
+        public static async Task<string> GenerateEmailConfirmationToken(
+            this UserManager<ApplicationUser> userManager,
+            ApplicationUser user)
+        {
+            var result = await userManager.UpdateSecurityStampAsync(user);
+            return result.Succeeded
+                ? await userManager.GenerateEmailConfirmationTokenAsync(user) : "";
+        }
     }
 }

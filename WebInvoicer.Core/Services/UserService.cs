@@ -42,6 +42,11 @@ namespace WebInvoicer.Core.Services
                 .NextAsync(emailService.SendForTaskResult, messageData));
         }
 
+        public ResultHandler RefreshToken(string email)
+        {
+            return ResultHandler.HandleTaskResult(new TaskResult<string>(GenerateJwt(email)));
+        }
+
         public async Task<ResultHandler> ConfirmUser(ConfirmUserDto data)
         {
             return ResultHandler.HandleTaskResult(await repository.ConfirmUser(data));
@@ -55,7 +60,7 @@ namespace WebInvoicer.Core.Services
             {
                 var mappedResult = new TaskResult<AuthenticateDto>(new AuthenticateDto
                 {
-                    Token = GenerateJwt(data),
+                    Token = GenerateJwt(data.Email),
                     UserData = mapper.Map<UserDataDto>(result.Payload)
                 });
 
@@ -92,7 +97,7 @@ namespace WebInvoicer.Core.Services
                 .NextAsync(emailService.SendForTaskResult, messageData));
         }
 
-        private string GenerateJwt(VerifyPasswordDto data)
+        private string GenerateJwt(string email)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(tokenConfig.JwtSecret);
@@ -100,7 +105,7 @@ namespace WebInvoicer.Core.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Email, data.Email)
+                    new Claim(ClaimTypes.Email, email)
                 }),
                 Expires = DateTime.UtcNow.AddHours(tokenConfig.TokenExpiryTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),

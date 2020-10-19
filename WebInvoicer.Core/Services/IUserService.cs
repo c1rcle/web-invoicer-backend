@@ -8,6 +8,8 @@ namespace WebInvoicer.Core.Services
     {
         Task<ResultHandler> CreateUser(CreateUserDto data);
 
+        ResultHandler RefreshToken(string email);
+
         Task<ResultHandler> ConfirmUser(ConfirmUserDto data);
 
         Task<ResultHandler> VerifyPassword(VerifyPasswordDto data);

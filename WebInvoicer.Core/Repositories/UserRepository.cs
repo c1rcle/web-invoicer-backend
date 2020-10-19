@@ -40,7 +40,7 @@ namespace WebInvoicer.Core.Repositories
                 return new TaskResult<string>(new[] { "Account already created" });
             }
 
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            var token = await userManager.GenerateEmailConfirmationToken(user);
             return new TaskResult<string>(token);
         }
 
@@ -66,7 +66,7 @@ namespace WebInvoicer.Core.Repositories
         public async Task<TaskResult<string>> ResetPassword(string email)
         {
             var token = await PerformUserAction(email, user =>
-                userManager.GeneratePasswordResetTokenAsync(user), "");
+                userManager.GeneratePasswordResetToken(user), "");
 
             return token != ""
                 ? new TaskResult<string>(token)

@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebInvoicer.Api.Extensions;
 using WebInvoicer.Core.Dtos.User;
 using WebInvoicer.Core.Services;
 using WebInvoicer.Core.Utility;
@@ -23,6 +24,16 @@ namespace WebInvoicer.Api.Controllers
         public async Task<IActionResult> Register([FromBody] CreateUserDto data)
         {
             return (await userService.CreateUser(data)).GetActionResult(this);
+        }
+
+        [HttpPost("refreshToken")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult RefreshToken()
+        {
+            return userService
+                .RefreshToken(HttpContext.GetEmailFromClaims())
+                .GetActionResult(this);
         }
 
         [AllowAnonymous]
@@ -54,6 +65,7 @@ namespace WebInvoicer.Api.Controllers
 
         [HttpPost("changePassword")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> ChangePassword([FromBody] PasswordDto data)
         {
