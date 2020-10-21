@@ -34,14 +34,14 @@ namespace WebInvoicer.Core.Repositories
                 {
                     return new TaskResult<string>(result.GetErrorDescriptions());
                 }
+
+                var token = await userManager.GenerateEmailConfirmationToken(user);
+                return new TaskResult<string>(token);
             }
-            else if (user.EmailConfirmed)
+            else
             {
                 return new TaskResult<string>(new[] { "Account already created" });
             }
-
-            var token = await userManager.GenerateEmailConfirmationToken(user);
-            return new TaskResult<string>(token);
         }
 
         public async Task<TaskResult> ConfirmUser(ConfirmUserDto data)

@@ -1,6 +1,5 @@
-using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.AspNetCore.Http;
 
 namespace WebInvoicer.Core.Email
 {
@@ -26,7 +25,7 @@ namespace WebInvoicer.Core.Email
             var endpoint = Type switch
             {
                 MessageType.Confirmation => "confirmEmail",
-                _ => "resetPassword"
+                _ => "changePassword"
             };
 
             var queryParams = new Dictionary<string, string>
@@ -35,8 +34,7 @@ namespace WebInvoicer.Core.Email
                 { "email", Recipient }
             };
 
-            return new Uri(QueryHelpers
-                .AddQueryString($"{baseUrl}/{endpoint}", queryParams)).ToString();
+            return $"{baseUrl}/{endpoint}{QueryString.Create(queryParams)}";
         }
     }
 }
