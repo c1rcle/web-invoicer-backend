@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebInvoicer.Core.Models
 {
@@ -6,6 +7,9 @@ namespace WebInvoicer.Core.Models
     {
         [Key]
         public int CounterpartyId { get; set; }
+
+        [Required]
+        public string UserId { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -25,5 +29,9 @@ namespace WebInvoicer.Core.Models
 
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
+
+        [ForeignKey("UserId")]
+        [InverseProperty("Counterparties")]
+        public virtual ApplicationUser User { get; set; }
     }
 }

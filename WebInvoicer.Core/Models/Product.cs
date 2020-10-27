@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebInvoicer.Core.Models
 {
@@ -6,6 +7,9 @@ namespace WebInvoicer.Core.Models
     {
         [Key]
         public int ProductId { get; set; }
+
+        [Required]
+        public string UserId { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -22,5 +26,9 @@ namespace WebInvoicer.Core.Models
 
         [Required]
         public VatRate VatRate { get; set; }
+
+        [ForeignKey("UserId")]
+        [InverseProperty("Products")]
+        public virtual ApplicationUser User { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebInvoicer.Core.Models
 {
@@ -7,6 +8,9 @@ namespace WebInvoicer.Core.Models
     {
         [Key]
         public int EmployeeId { get; set; }
+
+        [Required]
+        public string UserId { get; set; }
 
         [Required]
         public string FullName { get; set; }
@@ -17,5 +21,9 @@ namespace WebInvoicer.Core.Models
 
         [Required]
         public DateTime DateAdded { get; set; }
+
+        [ForeignKey("UserId")]
+        [InverseProperty("Employees")]
+        public virtual ApplicationUser User { get; set; }
     }
 }
