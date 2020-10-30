@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using System.Text.Json;
 using AutoMapper;
@@ -17,8 +16,12 @@ using WebInvoicer.Api.Configurations;
 using WebInvoicer.Api.Filters;
 using WebInvoicer.Core;
 using WebInvoicer.Core.Dtos;
+using WebInvoicer.Core.Dtos.Counterparty;
+using WebInvoicer.Core.Dtos.Employee;
+using WebInvoicer.Core.Dtos.Product;
 using WebInvoicer.Core.Models;
 using WebInvoicer.Core.Repositories;
+using WebInvoicer.Core.Repositories.Data;
 using WebInvoicer.Core.Services;
 
 namespace WebInvoicer.Api
@@ -31,9 +34,9 @@ namespace WebInvoicer.Api
             Environment = environment;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
-        public IWebHostEnvironment Environment { get; }
+        private IWebHostEnvironment Environment { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -43,6 +46,7 @@ namespace WebInvoicer.Api
 
             services.AddSingleton(config.EmailConfig);
             services.AddSingleton(config.TokenConfig);
+            services.AddSingleton(config.GusConfig);
 
             services.AddHttpContextAccessor();
             services.AddAutoMapper(typeof(Mapping));
@@ -64,9 +68,22 @@ namespace WebInvoicer.Api
                 options.Filters.Add(typeof(ValidateTokenFilter));
             });
 
+            services.AddHttpClient();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IDataService<CreateCounterpartyDto, CounterpartyDto>,
+                DataService<CreateCounterpartyDto, CounterpartyDto, Counterparty>>();
+            services.AddTransient<IDataService<CreateEmployeeDto, EmployeeDto>,
+                DataService<CreateEmployeeDto, EmployeeDto, Employee>>();
+            services.AddTransient<IDataService<CreateProductDto, ProductDto>,
+                DataService<CreateProductDto, ProductDto, Product>>();
+
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IDataRepository<Counterparty>, CounterpartyRepository>();
+            services.AddTransient<IDataRepository<Employee>, EmployeeRepository>();
+            services.AddTransient<IDataRepository<Product>, ProductRepository>();
+
             services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IGusService, GusService>();
 
             services.AddDbContextPool<DatabaseContext>(options =>
                 options.UseMySql(config.ConnectionString));
