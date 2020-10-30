@@ -10,17 +10,14 @@ using WebInvoicer.Core.Utility;
 
 namespace WebInvoicer.Core.Services
 {
-    public class EmailService : IEmailService
+    public class EmailService : CancellableOnRequestAbort, IEmailService
     {
         private readonly EmailConfiguration emailConfiguration;
 
-        private readonly IHttpContextAccessor contextAccessor;
-
         public EmailService(EmailConfiguration emailConfiguration,
-            IHttpContextAccessor contextAccessor)
+            IHttpContextAccessor contextAccessor) : base(contextAccessor)
         {
             this.emailConfiguration = emailConfiguration;
-            this.contextAccessor = contextAccessor;
         }
 
         public async Task<TaskResult> SendForTaskResult(TaskResult<string> result,
@@ -92,11 +89,6 @@ namespace WebInvoicer.Core.Services
                 await client.SendAsync(email, GetCancellationToken());
                 await client.DisconnectAsync(true, GetCancellationToken());
             }
-        }
-
-        private CancellationToken GetCancellationToken()
-        {
-            return contextAccessor.HttpContext.RequestAborted;
         }
     }
 }

@@ -103,7 +103,7 @@ namespace WebInvoicer.Core.Services
             var key = Encoding.ASCII.GetBytes(tokenConfig.JwtSecret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Email, email)
                 }),

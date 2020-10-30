@@ -34,7 +34,6 @@ namespace WebInvoicer.Api.Filters
             {
                 context.Result = new UnauthorizedObjectResult(
                     "Error: Token is not valid!");
-                return;
             }
         }
     }
