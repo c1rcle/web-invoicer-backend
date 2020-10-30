@@ -233,7 +233,7 @@ namespace WebInvoicer.Core.Migrations
 
                     b.Property<string>("Nip")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -247,6 +247,9 @@ namespace WebInvoicer.Core.Migrations
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.HasKey("CounterpartyId");
+
+                    b.HasIndex("Nip")
+                        .IsUnique();
 
                     b.HasIndex("UserId");
 
@@ -266,8 +269,9 @@ namespace WebInvoicer.Core.Migrations
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("PhoneNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -289,14 +293,16 @@ namespace WebInvoicer.Core.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<decimal>("GrossPrice")
+                    b.Property<decimal?>("GrossPrice")
+                        .IsRequired()
                         .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<decimal>("NetPrice")
+                    b.Property<decimal?>("NetPrice")
+                        .IsRequired()
                         .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("UserId")

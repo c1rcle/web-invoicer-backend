@@ -1,6 +1,9 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebInvoicer.Core.Models;
+using WebInvoicer.Core.Utility;
 
 namespace WebInvoicer.Core
 {
@@ -22,6 +25,7 @@ namespace WebInvoicer.Core
 
             builder.Entity<Counterparty>(entity =>
             {
+                entity.HasIndex(x => x.Nip).IsUnique();
                 entity.HasOne(e => e.User)
                     .WithMany(e => e.Counterparties)
                     .HasForeignKey(e => e.UserId)
@@ -46,6 +50,13 @@ namespace WebInvoicer.Core
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Product_User");
             });
+        }
+
+        public async Task<TaskResult> SaveContextChanges(CancellationToken token)
+        {
+            return await SaveChangesAsync(token) > 0
+                ? new TaskResult()
+                : new TaskResult(new[] { "Data could not be processed" });
         }
     }
 }
