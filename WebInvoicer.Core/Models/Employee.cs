@@ -17,7 +17,7 @@ namespace WebInvoicer.Core.Models
 
         [Required]
         [DataType(DataType.PhoneNumber)]
-        public int PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
 
         [Required]
         public DateTime DateAdded { get; set; }
