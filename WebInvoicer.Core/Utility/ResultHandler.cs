@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -6,9 +8,9 @@ namespace WebInvoicer.Core.Utility
 {
     public class ResultHandler
     {
-        public HttpStatusCode StatusCode { get; }
+        private HttpStatusCode StatusCode { get; }
 
-        public object Payload { get; set; }
+        private object Payload { get; set; }
 
         public ResultHandler(HttpStatusCode statusCode)
         {
@@ -30,36 +32,49 @@ namespace WebInvoicer.Core.Utility
             return controller.StatusCode((int)StatusCode);
         }
 
-        public void MapPayload<TDestination>(IMapper mapper)
+        public void MapPayload<TSource, TDestination>(IMapper mapper)
         {
-            Payload = mapper.Map<TDestination>(Payload);
+            Payload = Payload switch
+            {
+                IEnumerable<TSource> data => data.Select(x => mapper.Map<TDestination>(x)),
+                _ => mapper.Map<TDestination>(Payload)
+            };
         }
 
         public static ResultHandler HandleTaskResult<T>(TaskResult<T> result)
         {
-            var statusCode = result switch
+            if (result.Success)
             {
-                { Success: true, Payload: null } => HttpStatusCode.NoContent,
-                { Success: true } => HttpStatusCode.OK,
-                _ => HttpStatusCode.UnprocessableEntity
-            };
+                return new ResultHandler(HttpStatusCode.OK, result.Payload);
+            }
 
-            return result.Success
-                ? new ResultHandler(statusCode, result.Payload)
+            var statusCode = GetStatusCodeForErrorType(result.ErrorType);
+            return result.Errors == null
+                ? new ResultHandler(statusCode)
                 : new ResultHandler(statusCode, result.Errors);
         }
 
         public static ResultHandler HandleTaskResult(TaskResult result)
         {
-            var statusCode = result switch
+            if (result.Success)
             {
-                { Success: true } => HttpStatusCode.NoContent,
-                _ => HttpStatusCode.UnprocessableEntity
-            };
+                return new ResultHandler(HttpStatusCode.NoContent);
+            }
 
-            return result.Success
+            var statusCode = GetStatusCodeForErrorType(result.ErrorType);
+            return result.Errors == null
                 ? new ResultHandler(statusCode)
                 : new ResultHandler(statusCode, result.Errors);
+        }
+
+        private static HttpStatusCode GetStatusCodeForErrorType(TaskErrorType type)
+        {
+            return type switch
+            {
+                TaskErrorType.NotFound => HttpStatusCode.NotFound,
+                TaskErrorType.Unauthorized => HttpStatusCode.Unauthorized,
+                _ => HttpStatusCode.UnprocessableEntity
+            };
         }
     }
 }

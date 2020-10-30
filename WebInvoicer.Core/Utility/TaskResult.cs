@@ -6,6 +6,8 @@ namespace WebInvoicer.Core.Utility
 
         public T Payload { get; }
 
+        public TaskErrorType ErrorType { get; } = TaskErrorType.None;
+
         public string[] Errors { get; }
 
         public TaskResult(T payload)
@@ -14,9 +16,16 @@ namespace WebInvoicer.Core.Utility
             Payload = payload;
         }
 
-        public TaskResult(string[] errors)
+        public TaskResult(TaskErrorType type)
         {
             Success = false;
+            ErrorType = type;
+        }
+
+        public TaskResult(string[] errors, TaskErrorType type = TaskErrorType.Unprocessable)
+        {
+            Success = false;
+            ErrorType = type;
             Errors = errors;
         }
     }
@@ -25,6 +34,8 @@ namespace WebInvoicer.Core.Utility
     {
         public bool Success { get; }
 
+        public TaskErrorType ErrorType { get; } = TaskErrorType.None;
+
         public string[] Errors { get; }
 
         public TaskResult()
@@ -32,9 +43,16 @@ namespace WebInvoicer.Core.Utility
             Success = true;
         }
 
-        public TaskResult(string[] errors)
+        public TaskResult(TaskErrorType type)
         {
             Success = false;
+            ErrorType = type;
+        }
+
+        public TaskResult(string[] errors, TaskErrorType type = TaskErrorType.Unprocessable)
+        {
+            Success = false;
+            ErrorType = type;
             Errors = errors;
         }
     }
