@@ -12,6 +12,11 @@ namespace WebInvoicer.Core.Attributes
         {
             var nip = value as string;
 
+            if (nip == null)
+            {
+                return ValidationResult.Success;
+            }
+
             if (nip.Length != 10 || !nip.All(x => Char.IsDigit(x)))
             {
                 return new ValidationResult(errorMessage);
