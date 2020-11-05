@@ -14,14 +14,18 @@ namespace WebInvoicer.Core.Repositories.Data
 
         public ProductRepository(DatabaseContext context, IHttpContextAccessor contextAccessor)
             : base(contextAccessor) => this.context = context;
-        public async Task<TaskResult> Create(Product data, string email)
+        public async Task<TaskResult<Product>> Create(Product data, string email)
         {
             var user = await context.Users
                 .SingleOrDefaultAsync(x => x.Email == email, GetCancellationToken());
 
             data.UserId = user.Id;
             context.Products.Add(data);
-            return await context.SaveContextChanges(GetCancellationToken());
+
+            var result = await context.SaveContextChanges(GetCancellationToken());
+            return result.Success
+                ? new TaskResult<Product>(data)
+                : new TaskResult<Product>(result.Errors);
         }
 
         public async Task<TaskResult<IEnumerable<Product>>> GetAll(string email)

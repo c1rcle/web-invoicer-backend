@@ -19,8 +19,10 @@ namespace WebInvoicer.Core.Services
 
         public async Task<ResultHandler> Create(TCreateDto data, string email)
         {
-            return ResultHandler
+            var result = ResultHandler
                 .HandleTaskResult(await repository.Create(mapper.Map<TModel>(data), email));
+            result.MapPayload<TModel, TUpdateDto>(mapper);
+            return result;
         }
 
         public async Task<ResultHandler> GetAll(string email)

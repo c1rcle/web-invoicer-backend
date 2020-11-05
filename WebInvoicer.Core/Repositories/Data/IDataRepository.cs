@@ -6,7 +6,7 @@ namespace WebInvoicer.Core.Repositories.Data
 {
     public interface IDataRepository<TData>
     {
-        Task<TaskResult> Create(TData data, string email);
+        Task<TaskResult<TData>> Create(TData data, string email);
 
         Task<TaskResult<IEnumerable<TData>>> GetAll(string email);
 

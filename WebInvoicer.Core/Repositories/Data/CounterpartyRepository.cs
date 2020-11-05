@@ -15,7 +15,7 @@ namespace WebInvoicer.Core.Repositories.Data
         public CounterpartyRepository(DatabaseContext context,
             IHttpContextAccessor contextAccessor) : base(contextAccessor) => this.context = context;
 
-        public async Task<TaskResult> Create(Counterparty data, string email)
+        public async Task<TaskResult<Counterparty>> Create(Counterparty data, string email)
         {
             var user = await context.Users
                 .SingleOrDefaultAsync(x => x.Email == email, GetCancellationToken());
@@ -25,11 +25,14 @@ namespace WebInvoicer.Core.Repositories.Data
 
             try
             {
-                return await context.SaveContextChanges(GetCancellationToken());
+                var result = await context.SaveContextChanges(GetCancellationToken());
+                return result.Success 
+                    ? new TaskResult<Counterparty>(data) 
+                    : new TaskResult<Counterparty>(result.Errors);
             }
             catch (DbUpdateException)
             {
-                return new TaskResult(TaskErrorType.Unprocessable);
+                return new TaskResult<Counterparty>(TaskErrorType.Unprocessable);
             }
         }
 

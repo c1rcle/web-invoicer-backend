@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,14 +16,19 @@ namespace WebInvoicer.Core.Repositories.Data
         public EmployeeRepository(DatabaseContext context, IHttpContextAccessor contextAccessor)
             : base(contextAccessor) => this.context = context;
 
-        public async Task<TaskResult> Create(Employee data, string email)
+        public async Task<TaskResult<Employee>> Create(Employee data, string email)
         {
             var user = await context.Users
                 .SingleOrDefaultAsync(x => x.Email == email, GetCancellationToken());
 
             data.UserId = user.Id;
+            data.DateAdded = DateTime.Now;
             context.Employees.Add(data);
-            return await context.SaveContextChanges(GetCancellationToken());
+
+            var result = await context.SaveContextChanges(GetCancellationToken());
+            return result.Success
+                ? new TaskResult<Employee>(data)
+                : new TaskResult<Employee>(result.Errors);
         }
 
         public async Task<TaskResult<IEnumerable<Employee>>> GetAll(string email)
