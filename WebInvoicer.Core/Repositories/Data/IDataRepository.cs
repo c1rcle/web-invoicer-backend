@@ -10,7 +10,7 @@ namespace WebInvoicer.Core.Repositories.Data
 
         Task<TaskResult<IEnumerable<TData>>> GetAll(string email);
 
-        Task<TaskResult> Update(TData data, string email);
+        Task<TaskResult<TData>> Update(TData data, string email);
 
         Task<TaskResult> Delete(int resourceId, string email);
     }

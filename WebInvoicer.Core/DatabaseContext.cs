@@ -58,5 +58,12 @@ namespace WebInvoicer.Core
                 ? new TaskResult()
                 : new TaskResult(new[] { "Data could not be processed" });
         }
+
+        public async Task<TaskResult<T>> SaveContextChanges<T>(CancellationToken token, T payload)
+        {
+            return await SaveChangesAsync(token) > 0
+                ? new TaskResult<T>(payload)
+                : new TaskResult<T>(new[] { "Data could not be processed" });
+        }
     }
 }

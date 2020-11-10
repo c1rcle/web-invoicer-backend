@@ -22,10 +22,7 @@ namespace WebInvoicer.Core.Repositories.Data
             data.UserId = user.Id;
             context.Products.Add(data);
 
-            var result = await context.SaveContextChanges(GetCancellationToken());
-            return result.Success
-                ? new TaskResult<Product>(data)
-                : new TaskResult<Product>(result.Errors);
+            return await context.SaveContextChanges(GetCancellationToken(), data);
         }
 
         public async Task<TaskResult<IEnumerable<Product>>> GetAll(string email)
@@ -37,7 +34,7 @@ namespace WebInvoicer.Core.Repositories.Data
                 .ToListAsync(GetCancellationToken()));
         }
 
-        public async Task<TaskResult> Update(Product data, string email)
+        public async Task<TaskResult<Product>> Update(Product data, string email)
         {
             var record = await context.Products.Include(x => x.User)
                 .SingleOrDefaultAsync(x => x.ProductId == data.ProductId,
@@ -45,7 +42,7 @@ namespace WebInvoicer.Core.Repositories.Data
 
             if (record == null || record.User.Email != email)
             {
-                return new TaskResult(TaskErrorType.NotFound);
+                return new TaskResult<Product>(TaskErrorType.NotFound);
             }
 
             record.Name = data.Name ?? record.Name;
@@ -54,7 +51,7 @@ namespace WebInvoicer.Core.Repositories.Data
             record.GrossPrice = data.GrossPrice ?? record.GrossPrice;
             record.VatRate = data.VatRate ?? record.VatRate;
 
-            return await context.SaveContextChanges(GetCancellationToken());
+            return await context.SaveContextChanges(GetCancellationToken(), record);
         }
 
         public async Task<TaskResult> Delete(int resourceId, string email)

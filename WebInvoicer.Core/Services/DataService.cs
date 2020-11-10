@@ -34,8 +34,10 @@ namespace WebInvoicer.Core.Services
 
         public async Task<ResultHandler> Update(TUpdateDto data, string email)
         {
-            return ResultHandler
+            var result = ResultHandler
                 .HandleTaskResult(await repository.Update(mapper.Map<TModel>(data), email));
+            result.MapPayload<TModel, TUpdateDto>(mapper);
+            return result;
         }
 
         public async Task<ResultHandler> Delete(int resourceId, string email)

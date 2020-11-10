@@ -25,10 +25,7 @@ namespace WebInvoicer.Core.Repositories.Data
 
             try
             {
-                var result = await context.SaveContextChanges(GetCancellationToken());
-                return result.Success 
-                    ? new TaskResult<Counterparty>(data) 
-                    : new TaskResult<Counterparty>(result.Errors);
+                return await context.SaveContextChanges(GetCancellationToken(), data);
             }
             catch (DbUpdateException)
             {
@@ -45,7 +42,7 @@ namespace WebInvoicer.Core.Repositories.Data
                 .ToListAsync(GetCancellationToken()));
         }
 
-        public async Task<TaskResult> Update(Counterparty data, string email)
+        public async Task<TaskResult<Counterparty>> Update(Counterparty data, string email)
         {
             var record = await context.Counterparties.Include(x => x.User)
                 .SingleOrDefaultAsync(x => x.CounterpartyId == data.CounterpartyId,
@@ -53,7 +50,7 @@ namespace WebInvoicer.Core.Repositories.Data
 
             if (record == null || record.User.Email != email)
             {
-                return new TaskResult(TaskErrorType.NotFound);
+                return new TaskResult<Counterparty>(TaskErrorType.NotFound);
             }
 
             record.Name = data.Name ?? record.Name;
@@ -63,7 +60,7 @@ namespace WebInvoicer.Core.Repositories.Data
             record.City = data.City ?? record.City;
             record.PhoneNumber = data.PhoneNumber ?? record.PhoneNumber;
 
-            return await context.SaveContextChanges(GetCancellationToken());
+            return await context.SaveContextChanges(GetCancellationToken(), record);
         }
 
         public async Task<TaskResult> Delete(int resourceId, string email)
