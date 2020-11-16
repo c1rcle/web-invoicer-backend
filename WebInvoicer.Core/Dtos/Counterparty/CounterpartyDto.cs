@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using WebInvoicer.Core.Attributes;
 
 namespace WebInvoicer.Core.Dtos.Counterparty
 {
     public class CounterpartyDto
     {
+        [JsonPropertyName("id")]
         public int CounterpartyId { get; set; }
 
         public string Name { get; set; }

@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using WebInvoicer.Core.Models;
 
 namespace WebInvoicer.Core.Dtos.Product
 {
     public class ProductDto
     {
+        [JsonPropertyName("id")]
         public int ProductId { get; set; }
 
         public string Name { get; set; }
