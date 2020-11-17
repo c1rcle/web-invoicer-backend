@@ -21,6 +21,11 @@ namespace WebInvoicer.Core.Dtos
 
             CreateMap<CreateProductDto, Models.Product>().ReverseMap();
             CreateMap<ProductDto, Models.Product>().ReverseMap();
+
+            CreateMap<Invoice, Invoice>()
+                .ForMember(x => x.InvoiceId, x => x.Ignore())
+                .ForMember(x => x.UserId, x => x.Ignore())
+                .ForMember(x => x.Type, x => x.Ignore());
         }
     }
 }
