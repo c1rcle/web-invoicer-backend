@@ -11,6 +11,17 @@ namespace WebInvoicer.Core.Models
         [PersonalData]
         public string FullName { get; set; }
 
+        public string CompanyName { get; set; }
+
+        public string Nip { get; set; }
+
+        public string Address { get; set; }
+
+        [DataType(DataType.PostalCode)]
+        public string PostalCode { get; set; }
+
+        public string City { get; set; }
+
         [InverseProperty("User")]
         public virtual ICollection<Counterparty> Counterparties { get; set; }
 
@@ -19,5 +30,8 @@ namespace WebInvoicer.Core.Models
 
         [InverseProperty("User")]
         public virtual ICollection<Product> Products { get; set; }
+
+        [InverseProperty("User")]
+        public virtual ICollection<Invoice> Invoices { get; set; }
     }
 }

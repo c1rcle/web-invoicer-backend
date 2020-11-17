@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,5 +34,8 @@ namespace WebInvoicer.Core.Models
         [ForeignKey("UserId")]
         [InverseProperty("Counterparties")]
         public virtual ApplicationUser User { get; set; }
+
+        [InverseProperty("Counterparty")]
+        public virtual ICollection<Invoice> Invoices { get; set; }
     }
 }

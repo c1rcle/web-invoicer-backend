@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,5 +26,8 @@ namespace WebInvoicer.Core.Models
         [ForeignKey("UserId")]
         [InverseProperty("Employees")]
         public virtual ApplicationUser User { get; set; }
+
+        [InverseProperty("Employee")]
+        public virtual ICollection<Invoice> Invoices { get; set; }
     }
 }
