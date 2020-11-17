@@ -19,6 +19,10 @@ namespace WebInvoicer.Core
 
         public virtual DbSet<Employee> Employees { get; set; }
 
+        public virtual DbSet<Invoice> Invoices { get; set; }
+
+        public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -49,6 +53,42 @@ namespace WebInvoicer.Core
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Product_User");
+            });
+
+            builder.Entity<Invoice>(entity =>
+            {
+                entity.HasOne(e => e.User)
+                    .WithMany(e => e.Invoices)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_Invoice_User");
+
+                entity.HasOne(e => e.Employee)
+                    .WithMany(e => e.Invoices)
+                    .HasForeignKey(e => e.EmployeeId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_Invoice_Employee");
+
+                entity.HasOne(e => e.Counterparty)
+                    .WithMany(e => e.Invoices)
+                    .HasForeignKey(e => e.CounterpartyId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_Invoice_Counterparty");
+            });
+
+            builder.Entity<InvoiceItem>(entity =>
+            {
+                entity.HasOne(e => e.Invoice)
+                    .WithMany(x => x.Items)
+                    .HasForeignKey(x => x.InvoiceId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_InvoiceItem_Invoice");
+
+                entity.HasOne(e => e.Product)
+                    .WithMany(x => x.Items)
+                    .HasForeignKey(x => x.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_InvoiceItem_Product");
             });
         }
 
