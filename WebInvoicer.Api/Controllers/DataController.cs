@@ -46,6 +46,7 @@ namespace WebInvoicer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> Delete(int id)
         {
             return (await service.Delete(id, HttpContext.GetEmailFromClaims()))
