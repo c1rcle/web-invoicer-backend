@@ -7,18 +7,18 @@ namespace WebInvoicer.Core.Dtos.Invoice
     public class CreateInvoiceDto
     {
         [Required]
-        public InvoiceType Type { get; set; }
+        public InvoiceType? Type { get; set; }
 
         [Required]
         public string Number { get; set; }
 
         [Required]
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         [Required]
-        public int EmployeeId { get; set; }
+        public int? EmployeeId { get; set; }
 
-        public int CounterpartyId { get; set; }
+        public int? CounterpartyId { get; set; }
 
         public PaymentType? PaymentType { get; set; }
 
@@ -26,10 +26,10 @@ namespace WebInvoicer.Core.Dtos.Invoice
 
         [Required]
         [DataType(DataType.Currency)]
-        public decimal NetTotal { get; set; }
+        public decimal? NetTotal { get; set; }
 
         [Required]
         [DataType(DataType.Currency)]
-        public decimal GrossTotal { get; set; }
+        public decimal? GrossTotal { get; set; }
     }
 }

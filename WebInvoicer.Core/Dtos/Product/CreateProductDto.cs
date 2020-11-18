@@ -12,13 +12,13 @@ namespace WebInvoicer.Core.Dtos.Product
 
         [Required]
         [DataType(DataType.Currency)]
-        public decimal NetPrice { get; set; }
+        public decimal? NetPrice { get; set; }
 
         [Required]
         [DataType(DataType.Currency)]
-        public decimal GrossPrice { get; set; }
+        public decimal? GrossPrice { get; set; }
 
         [Required]
-        public VatRate VatRate { get; set; }
+        public VatRate? VatRate { get; set; }
     }
 }
