@@ -7,12 +7,12 @@ namespace WebInvoicer.Core.Repositories.Data
 {
     public interface IInvoiceItemRepository
     {
-        Task<TaskResult<InvoiceItem>> Create(InvoiceItem data);
+        Task<TaskResult> Create(InvoiceItem data, string email);
 
-        Task<TaskResult<IEnumerable<InvoiceItem>>> GetAll(int invoiceId);
+        Task<TaskResult<IEnumerable<InvoiceItem>>> GetAll(int invoiceId, string email);
 
-        Task<TaskResult> Update(InvoiceItem data);
+        Task<TaskResult> Update(InvoiceItem data, string email);
 
-        Task<TaskResult> Delete(int invoiceItemId);
+        Task<TaskResult> Delete(int invoiceItemId, string email);
     }
 }

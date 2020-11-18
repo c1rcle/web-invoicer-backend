@@ -14,9 +14,9 @@ namespace WebInvoicer.Core.Models
         public string UserId { get; set; }
 
         [Required]
-        public int EmployeeId { get; set; }
+        public int? EmployeeId { get; set; }
 
-        public int CounterpartyId { get; set; }
+        public int? CounterpartyId { get; set; }
 
         [Required]
         public InvoiceType Type { get; set; }
@@ -25,7 +25,7 @@ namespace WebInvoicer.Core.Models
         public string Number { get; set; }
 
         [Required]
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         public PaymentType? PaymentType { get; set; }
 
@@ -33,11 +33,11 @@ namespace WebInvoicer.Core.Models
 
         [Required]
         [DataType(DataType.Currency)]
-        public decimal NetTotal { get; set; }
+        public decimal? NetTotal { get; set; }
 
         [Required]
         [DataType(DataType.Currency)]
-        public decimal GrossTotal { get; set; }
+        public decimal? GrossTotal { get; set; }
 
         [InverseProperty("Invoice")]
         public virtual ICollection<InvoiceItem> Items { get; set; }

@@ -24,6 +24,11 @@ namespace WebInvoicer.Core.Repositories.Data
 
         public async Task<TaskResult<Invoice>> Create(Invoice data, string email)
         {
+            if (!await ValidForeignIds(data, email))
+            {
+                return new TaskResult<Invoice>(TaskErrorType.Unauthorized);
+            }
+
             var user = await context.Users
                 .SingleOrDefaultAsync(x => x.Email == email, GetCancellationToken());
 
@@ -44,6 +49,11 @@ namespace WebInvoicer.Core.Repositories.Data
 
         public async Task<TaskResult<Invoice>> Update(Invoice data, string email)
         {
+            if (!await ValidForeignIds(data, email))
+            {
+                return new TaskResult<Invoice>(TaskErrorType.Unauthorized);
+            }
+
             var record = await context.Invoices.Include(x => x.User)
                 .SingleOrDefaultAsync(x => x.InvoiceId == data.InvoiceId,
                     GetCancellationToken());
@@ -53,7 +63,15 @@ namespace WebInvoicer.Core.Repositories.Data
                 return new TaskResult<Invoice>(TaskErrorType.NotFound);
             }
 
-            mapper.Map(data, record);
+            record.Number = data.Number ?? record.Number;
+            record.Date = data.Date ?? record.Date;
+            record.EmployeeId = data.EmployeeId ?? record.EmployeeId;
+            record.CounterpartyId = data.CounterpartyId ?? record.CounterpartyId;
+            record.PaymentType = data.PaymentType ?? record.PaymentType;
+            record.PaymentDeadline = data.PaymentDeadline ?? record.PaymentDeadline;
+            record.NetTotal = data.NetTotal ?? record.NetTotal;
+            record.GrossTotal = data.GrossTotal ?? record.GrossTotal;
+
             return await context.SaveContextChanges(GetCancellationToken(), record);
         }
 
@@ -70,6 +88,27 @@ namespace WebInvoicer.Core.Repositories.Data
 
             context.Invoices.Remove(record);
             return await context.SaveContextChanges(GetCancellationToken());
+        }
+
+        private async Task<bool> ValidForeignIds(Invoice data, string email)
+        {
+            var employee = await context.Employees.Include(x => x.User)
+                .SingleOrDefaultAsync(x => x.EmployeeId == data.EmployeeId,
+                    GetCancellationToken());
+
+            var counterparty = await context.Counterparties.Include(x => x.User)
+                .SingleOrDefaultAsync(x => x.CounterpartyId == data.CounterpartyId,
+                    GetCancellationToken());
+
+            var employeeEmail = employee?.User?.Email ?? email;
+            var counterpartyEmail = counterparty?.User?.Email ?? email;
+
+            if (employeeEmail != email || counterpartyEmail != email)
+            {
+                return false;
+            }
+            
+            return true;
         }
     }
 }
