@@ -18,6 +18,7 @@ using WebInvoicer.Core;
 using WebInvoicer.Core.Dtos;
 using WebInvoicer.Core.Dtos.Counterparty;
 using WebInvoicer.Core.Dtos.Employee;
+using WebInvoicer.Core.Dtos.Invoice;
 using WebInvoicer.Core.Dtos.Product;
 using WebInvoicer.Core.Models;
 using WebInvoicer.Core.Repositories;
@@ -70,17 +71,22 @@ namespace WebInvoicer.Api
 
             services.AddHttpClient();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IInvoiceItemService, InvoiceItemService>();
             services.AddTransient<IDataService<CreateCounterpartyDto, CounterpartyDto>,
                 DataService<CreateCounterpartyDto, CounterpartyDto, Counterparty>>();
             services.AddTransient<IDataService<CreateEmployeeDto, EmployeeDto>,
                 DataService<CreateEmployeeDto, EmployeeDto, Employee>>();
             services.AddTransient<IDataService<CreateProductDto, ProductDto>,
                 DataService<CreateProductDto, ProductDto, Product>>();
+            services.AddTransient<IDataService<CreateInvoiceDto, InvoiceDto>,
+                DataService<CreateInvoiceDto, InvoiceDto, Invoice>>();
 
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IInvoiceItemRepository, InvoiceItemRepository>();
             services.AddTransient<IDataRepository<Counterparty>, CounterpartyRepository>();
             services.AddTransient<IDataRepository<Employee>, EmployeeRepository>();
             services.AddTransient<IDataRepository<Product>, ProductRepository>();
+            services.AddTransient<IDataRepository<Invoice>, InvoiceRepository>();
 
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IGusService, GusService>();
