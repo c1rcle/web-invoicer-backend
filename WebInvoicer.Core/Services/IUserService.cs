@@ -19,5 +19,7 @@ namespace WebInvoicer.Core.Services
         Task<ResultHandler> ChangePassword(PasswordDto data);
 
         Task<ResultHandler> ChangePassword(PasswordResetDto data);
+
+        Task<ResultHandler> SetCompanyDetails(SetCompanyDetailsDto data, string email);
     }
 }

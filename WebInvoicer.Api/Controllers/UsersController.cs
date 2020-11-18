@@ -80,5 +80,15 @@ namespace WebInvoicer.Api.Controllers
         {
             return (await userService.ChangePassword(data)).GetActionResult(this);
         }
+
+        [HttpPost("setCompanyDetails")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> SetCompanyDetails([FromBody] SetCompanyDetailsDto data)
+        {
+            return (await userService.SetCompanyDetails(data, HttpContext.GetEmailFromClaims()))
+                .GetActionResult(this);
+        }
     }
 }

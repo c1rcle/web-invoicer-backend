@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using WebInvoicer.Core.Dtos.User;
 using WebInvoicer.Core.Extensions;
@@ -12,8 +13,13 @@ namespace WebInvoicer.Core.Repositories
     {
         private readonly UserManager<ApplicationUser> userManager;
 
-        public UserRepository(UserManager<ApplicationUser> userManager) =>
+        private readonly IMapper mapper;
+
+        public UserRepository(UserManager<ApplicationUser> userManager, IMapper mapper)
+        {
             this.userManager = userManager;
+            this.mapper = mapper;
+        }
 
         public async Task<TaskResult<string>> CreateUser(CreateUserDto data)
         {
@@ -87,6 +93,18 @@ namespace WebInvoicer.Core.Repositories
             var result = await PerformUserAction(data.Email, user =>
                 userManager.ResetPasswordAsync(user, data.ResetToken, data.NewPassword),
                 IdentityResult.Failed());
+
+            return result.GetTaskResult();
+        }
+
+        public async Task<TaskResult> SetCompanyDetails(SetCompanyDetailsDto data, string email)
+        {
+            var result = await PerformUserAction(email, user =>
+            {
+                mapper.Map(data, user);
+                return userManager.UpdateAsync(user);
+            },
+            IdentityResult.Failed());
 
             return result.GetTaskResult();
         }

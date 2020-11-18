@@ -97,6 +97,11 @@ namespace WebInvoicer.Core.Services
                 .NextAsync(emailService.SendForTaskResult, messageData));
         }
 
+        public async Task<ResultHandler> SetCompanyDetails(SetCompanyDetailsDto data, string email)
+        {
+            return ResultHandler.HandleTaskResult(await repository.SetCompanyDetails(data, email));
+        }
+
         private string GenerateJwt(string email)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
