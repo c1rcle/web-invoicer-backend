@@ -1,5 +1,7 @@
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using WebInvoicer.Core.Repositories.Data;
 using WebInvoicer.Core.Utility;
 
@@ -42,7 +44,14 @@ namespace WebInvoicer.Core.Services
 
         public async Task<ResultHandler> Delete(int resourceId, string email)
         {
-            return ResultHandler.HandleTaskResult(await repository.Delete(resourceId, email));
+            try
+            {
+                return ResultHandler.HandleTaskResult(await repository.Delete(resourceId, email));
+            }
+            catch (DbUpdateException)
+            {
+                return new ResultHandler(HttpStatusCode.UnprocessableEntity);
+            }
         }
     }
 }
