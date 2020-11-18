@@ -10,6 +10,7 @@ namespace WebInvoicer.Core.Dtos.Invoice
         [JsonPropertyName("id")]
         public int InvoiceId { get; set; }
 
+        [Required]
         public InvoiceType? Type { get; set; }
 
         public string Number { get; set; }
