@@ -12,10 +12,10 @@ namespace WebInvoicer.Core.Models
         public int InvoiceId { get; set; }
 
         [Required]
-        public int? ProductId { get; set; }
+        public int ProductId { get; set; }
 
         [Required]
-        public int Index { get; set; }
+        public int? Index { get; set; }
 
         [Required]
         public int? Count { get; set; }

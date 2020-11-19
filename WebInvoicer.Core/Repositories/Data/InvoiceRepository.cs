@@ -64,7 +64,6 @@ namespace WebInvoicer.Core.Repositories.Data
             }
 
             record.Number = data.Number ?? record.Number;
-            record.Date = data.Date ?? record.Date;
             record.EmployeeId = data.EmployeeId ?? record.EmployeeId;
             record.CounterpartyId = data.CounterpartyId ?? record.CounterpartyId;
             record.PaymentType = data.PaymentType ?? record.PaymentType;

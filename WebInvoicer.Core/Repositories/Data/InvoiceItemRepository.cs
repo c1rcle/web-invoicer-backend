@@ -49,9 +49,9 @@ namespace WebInvoicer.Core.Repositories.Data
                 return new TaskResult(TaskErrorType.NotFound);
             }
 
+            record.Index = data.Index ?? record.Index;
             record.Count = data.Count ?? record.Count;
             record.Unit = data.Unit ?? record.Unit;
-            record.ProductId = data.ProductId ?? record.ProductId;
 
             return await context.SaveContextChanges(GetCancellationToken());
         }

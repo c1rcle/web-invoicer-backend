@@ -5,10 +5,13 @@ namespace WebInvoicer.Core.Dtos.InvoiceItem
 {
     public class InvoiceItemDto
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName("itemId")]
         public int InvoiceItemId { get; set; }
 
-        public int? ProductId { get; set; }
+        [JsonPropertyName("id")]
+        public int ProductId { get; set; }
+
+        public int? Index { get; set; }
 
         [Range(1, int.MaxValue)]
         public int? Count { get; set; }
