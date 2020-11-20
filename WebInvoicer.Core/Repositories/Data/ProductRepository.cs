@@ -25,6 +25,20 @@ namespace WebInvoicer.Core.Repositories.Data
             return await context.SaveContextChanges(GetCancellationToken(), data);
         }
 
+        public async Task<TaskResult<Product>> Get(int resourceId, string email)
+        {
+            var record = await context.Products.Include(x => x.User)
+                .SingleOrDefaultAsync(x => x.ProductId == resourceId,
+                    GetCancellationToken());
+
+            if (record == null || record.User.Email != email)
+            {
+                return new TaskResult<Product>(TaskErrorType.NotFound);
+            }
+
+            return new TaskResult<Product>(record);
+        }
+
         public async Task<TaskResult<IEnumerable<Product>>> GetAll(string email)
         {
             return new TaskResult<IEnumerable<Product>>(await context.Products

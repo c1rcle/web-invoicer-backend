@@ -7,6 +7,8 @@ namespace WebInvoicer.Core.Services
     {
         Task<ResultHandler> Create(TCreateDto data, string email);
 
+        Task<ResultHandler> Get(int resourceId, string email);
+
         Task<ResultHandler> GetAll(string email);
 
         Task<ResultHandler> Update(TUpdateDto data, string email);

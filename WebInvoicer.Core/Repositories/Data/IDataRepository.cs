@@ -8,6 +8,8 @@ namespace WebInvoicer.Core.Repositories.Data
     {
         Task<TaskResult<TData>> Create(TData data, string email);
 
+        Task<TaskResult<TData>> Get(int resourceId, string email);
+
         Task<TaskResult<IEnumerable<TData>>> GetAll(string email);
 
         Task<TaskResult<TData>> Update(TData data, string email);

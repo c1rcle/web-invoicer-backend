@@ -33,6 +33,20 @@ namespace WebInvoicer.Core.Repositories.Data
             }
         }
 
+        public async Task<TaskResult<Counterparty>> Get(int resourceId, string email)
+        {
+            var record = await context.Counterparties.Include(x => x.User)
+                .SingleOrDefaultAsync(x => x.CounterpartyId == resourceId,
+                    GetCancellationToken());
+
+            if (record == null || record.User.Email != email)
+            {
+                return new TaskResult<Counterparty>(TaskErrorType.NotFound);
+            }
+
+            return new TaskResult<Counterparty>(record);
+        }
+
         public async Task<TaskResult<IEnumerable<Counterparty>>> GetAll(string email)
         {
             return new TaskResult<IEnumerable<Counterparty>>(await context.Counterparties

@@ -38,6 +38,20 @@ namespace WebInvoicer.Core.Repositories.Data
             return await context.SaveContextChanges(GetCancellationToken(), data);
         }
 
+        public async Task<TaskResult<Invoice>> Get(int resourceId, string email)
+        {
+            var record = await context.Invoices.Include(x => x.User)
+                .SingleOrDefaultAsync(x => x.InvoiceId == resourceId,
+                    GetCancellationToken());
+
+            if (record == null || record.User.Email != email)
+            {
+                return new TaskResult<Invoice>(TaskErrorType.NotFound);
+            }
+
+            return new TaskResult<Invoice>(record);
+        }
+
         public async Task<TaskResult<IEnumerable<Invoice>>> GetAll(string email)
         {
             return new TaskResult<IEnumerable<Invoice>>(await context.Invoices
@@ -64,6 +78,7 @@ namespace WebInvoicer.Core.Repositories.Data
             }
 
             record.Number = data.Number ?? record.Number;
+            record.Date = data.Date ?? record.Date;
             record.EmployeeId = data.EmployeeId ?? record.EmployeeId;
             record.CounterpartyId = data.CounterpartyId ?? record.CounterpartyId;
             record.PaymentType = data.PaymentType ?? record.PaymentType;
@@ -106,7 +121,7 @@ namespace WebInvoicer.Core.Repositories.Data
             {
                 return false;
             }
-            
+
             return true;
         }
     }

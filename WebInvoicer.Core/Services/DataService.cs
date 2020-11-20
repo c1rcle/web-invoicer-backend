@@ -27,6 +27,13 @@ namespace WebInvoicer.Core.Services
             return result;
         }
 
+        public async Task<ResultHandler> Get(int resourceId, string email)
+        {
+            var result = ResultHandler.HandleTaskResult(await repository.Get(resourceId, email));
+            result.MapPayload<TModel, TUpdateDto>(mapper);
+            return result;
+        }
+
         public async Task<ResultHandler> GetAll(string email)
         {
             var result = ResultHandler.HandleTaskResult(await repository.GetAll(email));
