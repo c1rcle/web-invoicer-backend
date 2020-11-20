@@ -57,6 +57,7 @@ namespace WebInvoicer.Core
 
             builder.Entity<Invoice>(entity =>
             {
+                entity.HasIndex(x => x.Number).IsUnique();
                 entity.HasOne(e => e.User)
                     .WithMany(e => e.Invoices)
                     .HasForeignKey(e => e.UserId)
