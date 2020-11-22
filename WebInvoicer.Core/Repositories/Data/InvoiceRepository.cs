@@ -35,7 +35,14 @@ namespace WebInvoicer.Core.Repositories.Data
             data.UserId = user.Id;
             context.Invoices.Add(data);
 
-            return await context.SaveContextChanges(GetCancellationToken(), data);
+            try
+            {
+                return await context.SaveContextChanges(GetCancellationToken(), data);
+            }
+            catch (DbUpdateException)
+            {
+                return new TaskResult<Invoice>(TaskErrorType.Unprocessable);
+            }
         }
 
         public async Task<TaskResult<Invoice>> Get(int resourceId, string email)

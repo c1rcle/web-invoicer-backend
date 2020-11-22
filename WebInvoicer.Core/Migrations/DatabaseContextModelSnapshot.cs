@@ -347,10 +347,10 @@ namespace WebInvoicer.Core.Migrations
 
                     b.HasIndex("EmployeeId");
 
-                    b.HasIndex("Number")
-                        .IsUnique();
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("Number", "UserId")
+                        .IsUnique();
 
                     b.ToTable("Invoices");
                 });
