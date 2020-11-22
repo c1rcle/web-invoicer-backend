@@ -142,9 +142,9 @@ namespace WebInvoicer.Api
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor |
                     ForwardedHeaders.XForwardedProto
             });
-            app.UseCors();
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
