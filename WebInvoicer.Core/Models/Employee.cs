@@ -17,6 +17,7 @@ namespace WebInvoicer.Core.Models
         public string FullName { get; set; }
 
         [Required]
+        [StringLength(12)]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 

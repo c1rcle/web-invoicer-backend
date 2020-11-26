@@ -29,7 +29,7 @@ namespace WebInvoicer.Core
 
             builder.Entity<Counterparty>(entity =>
             {
-                entity.HasIndex(x => x.Nip).IsUnique();
+                entity.HasIndex(x => new { x.Nip, x.UserId }).IsUnique();
                 entity.HasOne(e => e.User)
                     .WithMany(e => e.Counterparties)
                     .HasForeignKey(e => e.UserId)

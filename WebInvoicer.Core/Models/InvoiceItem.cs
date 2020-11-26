@@ -21,6 +21,7 @@ namespace WebInvoicer.Core.Models
         public int? Count { get; set; }
 
         [Required]
+        [StringLength(10)]
         public string Unit { get; set; }
 
         [ForeignKey("InvoiceId")]

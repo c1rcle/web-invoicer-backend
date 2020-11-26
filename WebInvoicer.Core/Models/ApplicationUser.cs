@@ -13,10 +13,12 @@ namespace WebInvoicer.Core.Models
 
         public string CompanyName { get; set; }
 
+        [StringLength(10)]
         public string Nip { get; set; }
 
         public string Address { get; set; }
 
+        [StringLength(6)]
         [DataType(DataType.PostalCode)]
         public string PostalCode { get; set; }
 
